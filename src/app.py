@@ -41,31 +41,32 @@ def handle_add_member():
         return jsonify({"error": "Request body is empty"}), 400
     
     # Agregar el miembro
-    jackson_family.add_member(request_body)
-    
-    # Retornar la lista completa de miembros
-    return jsonify(jackson_family.get_all_members()), 200
+    new_member = jackson_family.add_member(request_body)
+    return jsonify(new_member), 200
 
 @app.route('/member/<int:member_id>', methods=['GET'])
 @app.route('/members/<int:member_id>', methods=['GET'])
 def handle_get_member(member_id):
     # this is how you can use the Family datastructure by calling its methods
     member = jackson_family.get_member(member_id)
-    
     if member is None:
         return jsonify({"error": "Member not found"}), 400
-    
-    return jsonify(member), 200
+    # Solo devolver las claves requeridas
+    result = {
+        "id": member["id"],
+        "first_name": member["first_name"],
+        "age": member["age"],
+        "lucky_numbers": member["lucky_numbers"]
+    }
+    return jsonify(result), 200
 
 @app.route('/member/<int:member_id>', methods=['DELETE'])
 @app.route('/members/<int:member_id>', methods=['DELETE'])
 def handle_delete_member(member_id):
     # this is how you can use the Family datastructure by calling its methods
     success = jackson_family.delete_member(member_id)
-    
     if not success:
         return jsonify({"error": "Member not found"}), 400
-    
     return jsonify({"done": True}), 200
     
 # this only runs if `$ python src/app.py` is executed
